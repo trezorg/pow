@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/trezorg/pow/internal/log"
 	"github.com/trezorg/pow/internal/pow"
+	"github.com/trezorg/pow/internal/wordofwisdom"
 	"io"
 	"math/rand"
 	"net"
@@ -77,7 +78,7 @@ loop:
 				}
 				var message []byte
 				if pow.Check(req, puzzle, server.hashCashZeros) {
-					message = []byte("ok")
+					message = []byte(wordofwisdom.Quote())
 				} else {
 					message = []byte("fail")
 				}
