@@ -1,6 +1,6 @@
 # "Word of Wisdom" TCP-server with protection from DDOS based on Proof of Work
 
-[![Actions Status](https://github.com/trezorg/pow/workflows/main/badge.svg)](https://github.com/trezorg/pow/actions)
+[![Actions Status]( https://github.com/trezorg/pow/actions/workflows/go.yml/badge.svg)](https://github.com/trezorg/pow/actions)
 
 ## 1. Description
 This project is a solution for some interview question on Golang.
