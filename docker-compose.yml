@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+
+  server:
+    build:
+      context: .
+    image: pow-server
+    hostname: server
+    command:
+      - -p
+      - "8080"
+      - -z
+      - "3"
+      - server
+    restart: "always"
+    user: pow
+    networks:
+      - pow
+
+  client:
+    build:
+      context: .
+    image: pow-client
+    command:
+      - -a
+      - server
+      - -p
+      - "8080"
+      - -z
+      - "3"
+      - client
+    hostname: client
+    restart: "always"
+    user: pow
+    networks:
+      - pow
+
+
+networks:
+  pow:
+    driver: bridge
