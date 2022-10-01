@@ -9,7 +9,13 @@ import (
 	"os"
 )
 
-func Start(address string, port int, zeroes int) {
+type responseHandler func([]byte)
+
+func DefaultHandler(response []byte) {
+	log.Infof("Got response: %v", string(response))
+}
+
+func Start(address string, port int, zeroes int, handler responseHandler) {
 	serverAddr := fmt.Sprintf("%s:%d", address, port)
 	tcpAddr, err := net.ResolveTCPAddr("tcp", serverAddr)
 	if err != nil {
@@ -68,5 +74,5 @@ func Start(address string, port int, zeroes int) {
 		os.Exit(1)
 	}
 
-	log.Infof("Got response: %v", string(response))
+	handler(response)
 }

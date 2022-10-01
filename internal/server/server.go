@@ -58,7 +58,7 @@ loop:
 				// request for new puzzle
 				req := pow.Request{
 					RemoteIP:   parts[0],
-					RemotePort: int(port),
+					RemotePort: uint16(port),
 					SeedID:     rand.Uint64(),
 				}
 				respPuzzle := pow.Make(req)
@@ -73,7 +73,7 @@ loop:
 				// solved puzzle
 				req := pow.Request{
 					RemoteIP:   parts[0],
-					RemotePort: int(port),
+					RemotePort: uint16(port),
 					SeedID:     seed,
 				}
 				var message []byte
@@ -142,6 +142,6 @@ func (server *PuzzleServer) Stop() {
 	if err := server.listener.Close(); err != nil {
 		log.Error(err)
 	}
-	log.Debug("Waiting connections is being closed...")
+	log.Debug("Waiting connections are being closed...")
 	server.wg.Wait()
 }

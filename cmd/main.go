@@ -29,7 +29,7 @@ func startServer(cfg config.Config) {
 }
 
 func startClient(cfg config.Config) {
-	client.Start(cfg.Address, cfg.Port, cfg.Zeroes)
+	client.Start(cfg.Address, cfg.Port, cfg.Zeroes, client.DefaultHandler)
 }
 
 func main() {

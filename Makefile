@@ -8,7 +8,7 @@ logs:
 	docker-compose logs -f
 
 test:
-	go test -v ./...
+	go test -v -count 1 ./...
 
 build:
 	go build -a -o pow ./cmd

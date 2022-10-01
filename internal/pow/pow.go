@@ -6,7 +6,7 @@ import (
 	"encoding/binary"
 	"io"
 	"math/rand"
-	"strconv"
+	"net"
 	"time"
 )
 
@@ -47,17 +47,19 @@ func (puzzle *Puzzle) Read(r io.Reader) error {
 
 type Request struct {
 	RemoteIP   string
-	RemotePort int
+	RemotePort uint16
 	SeedID     uint64
 }
 
 func (req Request) hash() []byte {
-	var buf []byte
 	hashes := sha1.New()
-	buf = append(buf, []byte(req.RemoteIP)...)
-	buf = append(buf, []byte(strconv.Itoa(req.RemotePort))...)
-	buf = append(buf, []byte(strconv.FormatUint(req.SeedID, 10))...)
-	hashes.Write(buf)
+	// ip - 4 + port - 2 + seed 8
+	bs := make([]byte, 14)
+	ip := net.ParseIP(req.RemoteIP)
+	copy(bs[:4], ip.To4())
+	binary.BigEndian.PutUint16(bs[4:], req.RemotePort)
+	binary.BigEndian.PutUint64(bs[6:], req.SeedID)
+	hashes.Write(bs)
 	return hashes.Sum(nil)
 }
 
