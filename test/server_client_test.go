@@ -1,9 +1,10 @@
-package server
+package test
 
 import (
 	"github.com/stretchr/testify/require"
 	"github.com/trezorg/pow/internal/client"
 	"github.com/trezorg/pow/internal/log"
+	"github.com/trezorg/pow/internal/server"
 	"net"
 	"testing"
 	"time"
@@ -33,7 +34,7 @@ func TestServerClient(t *testing.T) {
 	port, err := freePort()
 	address := "127.0.0.1"
 	require.NoError(t, err)
-	srv, err := New(address, port, 5)
+	srv, err := server.New(address, port, 5)
 	require.NoError(t, err)
 	defer srv.Stop()
 

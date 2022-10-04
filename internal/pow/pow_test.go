@@ -2,8 +2,9 @@ package pow
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestPow(t *testing.T) {
@@ -64,4 +65,11 @@ func TestReadPuzzleFromReader(t *testing.T) {
 	require.Equal(t, puzzle.Hash, newPuzzle.Hash)
 	require.Equal(t, puzzle.Solution, newPuzzle.Solution)
 	require.Equal(t, puzzle.SeedID, newPuzzle.SeedID)
+}
+
+func TestReadInvalidPuzzle(t *testing.T) {
+	newPuzzle := Puzzle{}
+	r := bytes.NewReader([]byte("test"))
+	err := newPuzzle.Read(r)
+	require.Error(t, err)
 }
