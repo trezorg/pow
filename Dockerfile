@@ -1,7 +1,7 @@
 FROM golang:alpine as builder
 ENV USER=pow APP_NAME=pow USER_ID=1000
 
-RUN adduser -D -H -u ${USER_ID} ${USER}
+RUN adduser -D -H -u ${USER_ID} ${USER} && apk add git
 
 ADD go.mod /build/
 RUN cd /build && go mod download
