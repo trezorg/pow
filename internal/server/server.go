@@ -62,7 +62,7 @@ loop:
 					SeedID:     rand.Uint64(),
 				}
 				respPuzzle := pow.Make(req)
-				resp, _ := respPuzzle.Marshal()
+				resp, _ := respPuzzle.MarshalBinary()
 				_, err = conn.Write(resp)
 				if err != nil {
 					log.Errorf("Failed to write into connection: %v", err)

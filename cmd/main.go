@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"github.com/trezorg/pow/internal/client"
 	"github.com/trezorg/pow/internal/config"
 	"github.com/trezorg/pow/internal/log"
 	"github.com/trezorg/pow/internal/server"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 )
 
@@ -21,15 +23,27 @@ func startServer(cfg config.Config) {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
-	for sig := range stop {
-		log.Infof("Stopping server. Signal %v", sig)
-		srv.Stop()
-		close(stop)
-	}
+	sig := <-stop
+	log.Infof("Stopping server. Signal %v", sig)
+	srv.Stop()
+	close(stop)
 }
 
 func startClient(cfg config.Config) {
-	client.Start(cfg.Address, cfg.Port, cfg.Zeroes, client.DefaultHandler)
+	ctx, cancel := context.WithCancel(context.Background())
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go client.Start(ctx, &wg, cfg, client.DefaultHandler)
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+
+	sig := <-stop
+	log.Infof("Stopping client. Signal %v", sig)
+	cancel()
+	wg.Wait()
+	close(stop)
 }
 
 func main() {

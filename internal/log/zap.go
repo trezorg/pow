@@ -37,21 +37,10 @@ func Info(args ...interface{}) {
 	log.Info(args...)
 }
 
-func Warnf(template string, args ...interface{}) {
-	log.Warnf(template, args...)
-}
-
-func Warn(args ...interface{}) {
-	log.Warn(args...)
-}
-
 func Debugf(template string, args ...interface{}) {
 	log.Debugf(template, args...)
 }
 
 func Debug(args ...interface{}) {
 	log.Debug(args...)
-}
-
-func Noop(args ...interface{}) {
 }

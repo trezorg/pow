@@ -44,7 +44,11 @@ func TestServerClient(t *testing.T) {
 		response = string(bs)
 	}
 
-	go client.Start(address, port, 5, handler)
+	go func() {
+		if err := client.Request(address, port, 5, handler); err != nil {
+			log.Error(err)
+		}
+	}()
 
 loop:
 	for i := 0; i < 10; i++ {

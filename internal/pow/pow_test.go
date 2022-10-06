@@ -26,10 +26,10 @@ func TestMarshalUnMarshalPuzzle(t *testing.T) {
 		Hash:     *(*[20]byte)([]byte("11111111111111111111")),
 	}
 
-	res, err := puzzle.Marshal()
+	res, err := puzzle.MarshalBinary()
 	require.NoError(t, err)
 	newPuzzle := Puzzle{}
-	err = newPuzzle.UnMarshal(res)
+	err = newPuzzle.UnmarshalBinary(res)
 	require.NoError(t, err)
 	require.Equal(t, puzzle.Hash, newPuzzle.Hash)
 	require.Equal(t, puzzle.Solution, newPuzzle.Solution)
@@ -56,7 +56,7 @@ func TestReadPuzzleFromReader(t *testing.T) {
 		Hash:     *(*[20]byte)([]byte("11111111111111111111")),
 	}
 
-	res, err := puzzle.Marshal()
+	res, err := puzzle.MarshalBinary()
 	require.NoError(t, err)
 	newPuzzle := Puzzle{}
 	r := bytes.NewReader(res)

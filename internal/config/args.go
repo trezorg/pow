@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"os"
+	"time"
 )
 
 type CommandType string
@@ -18,6 +19,7 @@ type Config struct {
 	Port     int
 	Zeroes   int
 	LogLevel string
+	Period   time.Duration
 	Command  CommandType
 }
 
@@ -75,8 +77,18 @@ func New(version string) Config {
 			Aliases: []string{"c"},
 			Usage:   "Start tcp pow client",
 			Action: func(c *cli.Context) error {
+				period := c.Int("period")
+				config.Period = time.Duration(period) * time.Second
 				config.Command = Client
 				return nil
+			},
+			Flags: []cli.Flag{
+				&cli.IntFlag{
+					Name:    "period",
+					Usage:   "Period client send requests in seconds",
+					Value:   3,
+					Aliases: []string{"p"},
+				},
 			},
 		},
 		{

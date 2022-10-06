@@ -16,7 +16,7 @@ type Puzzle struct {
 	SeedID   uint64
 }
 
-func (puzzle *Puzzle) Marshal() ([]byte, error) {
+func (puzzle *Puzzle) MarshalBinary() ([]byte, error) {
 	var buf bytes.Buffer
 	if err := binary.Write(&buf, binary.BigEndian, *puzzle); err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (puzzle *Puzzle) Marshal() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (puzzle *Puzzle) UnMarshal(buf []byte) error {
+func (puzzle *Puzzle) UnmarshalBinary(buf []byte) error {
 	if err := binary.Read(bytes.NewBuffer(buf), binary.BigEndian, puzzle); err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (puzzle *Puzzle) Read(r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	return puzzle.UnMarshal(data)
+	return puzzle.UnmarshalBinary(data)
 }
 
 type Request struct {

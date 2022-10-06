@@ -1,12 +1,15 @@
 package client
 
 import (
+	"context"
 	"fmt"
+	"github.com/trezorg/pow/internal/config"
 	"github.com/trezorg/pow/internal/log"
 	"github.com/trezorg/pow/internal/pow"
 	"io"
 	"net"
-	"os"
+	"sync"
+	"time"
 )
 
 type responseHandler func([]byte)
@@ -15,18 +18,16 @@ func DefaultHandler(response []byte) {
 	log.Infof("Got response: %v", string(response))
 }
 
-func Start(address string, port int, zeroes int, handler responseHandler) {
+func Request(address string, port int, zeroes int, handler responseHandler) error {
 	serverAddr := fmt.Sprintf("%s:%d", address, port)
 	tcpAddr, err := net.ResolveTCPAddr("tcp", serverAddr)
 	if err != nil {
-		log.Errorf("ResolveTCPAddr failed: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("resolveTCPAddr failed: %w", err)
 	}
 
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	if err != nil {
-		log.Errorf("Dial failed: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("dial failed: %w", err)
 	}
 	defer func() {
 		if err := conn.Close(); err != nil {
@@ -36,43 +37,54 @@ func Start(address string, port int, zeroes int, handler responseHandler) {
 	}()
 
 	puzzle := pow.Puzzle{}
-	data, err := puzzle.Marshal()
+	data, err := puzzle.MarshalBinary()
 	if err != nil {
-		log.Errorf("Error marshalling: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("error marshalling: %w", err)
 	}
 	log.Info("Sending request for puzzle...")
 	_, err = conn.Write(data)
 	if err != nil {
-		log.Errorf("Write to server failed: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("write to server failed: %w", err)
 	}
 
 	err = puzzle.Read(conn)
 	if err != nil {
-		log.Errorf("Read puzzle from server failed: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("read puzzle from server failed: %w", err)
 	}
 
 	responsePuzzle := pow.Find(puzzle, zeroes)
-	data, err = responsePuzzle.Marshal()
+	data, err = responsePuzzle.MarshalBinary()
 	if err != nil {
-		log.Errorf("Error marshalling: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("error marshalling: %w", err)
 	}
 
 	log.Info("Sending solved puzzle...")
 	_, err = conn.Write(data)
 	if err != nil {
-		log.Errorf("Write to server failed: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("write to server failed: %w", err)
 	}
 
 	response, err := io.ReadAll(conn)
 	if err != nil {
-		log.Errorf("Error reading response: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("error reading response: %w", err)
 	}
 
 	handler(response)
+	return nil
+}
+
+func Start(ctx context.Context, wg *sync.WaitGroup, cfg config.Config, handler responseHandler) {
+
+	defer wg.Done()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(cfg.Period):
+			if err := Request(cfg.Address, cfg.Port, cfg.Zeroes, handler); err != nil {
+				log.Error(err)
+			}
+		}
+	}
 }
